@@ -2,7 +2,7 @@ import streamlit as st
 import yt_dlp
 import os
 
-st.title("🎬 YouTube Downloader")
+st.title("🎬 YouTube Downloader (No ffmpeg needed)")
 
 url = st.text_input("Enter YouTube video URL:")
 
@@ -15,17 +15,15 @@ if st.button("Download"):
                 output_dir = "downloads"
                 os.makedirs(output_dir, exist_ok=True)
 
+                # Progressive MP4 (video+audio in one file, no merging required)
                 ydl_opts = {
-                    "format": "bestvideo+bestaudio/best",
+                    "format": "mp4[ext=mp4][vcodec^=avc1][acodec^=mp4a]/best[ext=mp4]",
                     "outtmpl": f"{output_dir}/%(title)s.%(ext)s",
-                    "merge_output_format": "mp4"
                 }
 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(url, download=True)
                     filepath = ydl.prepare_filename(info)
-                    if not filepath.endswith(".mp4"):
-                        filepath = filepath.rsplit(".", 1)[0] + ".mp4"
 
                 st.success(f"Downloaded: {os.path.basename(filepath)}")
 
